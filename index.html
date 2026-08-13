@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get the BBN Member Badge</title>
+<style>
+  :root {
+    --black: #111111;
+    --white: #ffffff;
+    --grey: #f4f4f4;
+    --line: #e2e2e2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--white);
+    color: var(--black);
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 24px 100px;
+  }
+  .eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+    line-height: 1.1;
+  }
+  .lede {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #444;
+    max-width: 52ch;
+    margin: 0 0 56px;
+  }
+  .badge-preview {
+    background: var(--grey);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 48px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+  .badge-preview img {
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+  }
+  section {
+    margin-bottom: 48px;
+  }
+  h2 {
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2 .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--black);
+    color: var(--white);
+    font-size: 11px;
+  }
+  p.step-desc {
+    font-size: 15px;
+    color: #444;
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+  .code-box {
+    position: relative;
+    background: var(--black);
+    color: #eaeaea;
+    border-radius: 4px;
+    padding: 20px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--white);
+    color: var(--black);
+    border: none;
+    border-radius: 3px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .copy-btn:hover { background: #ddd; }
+  .copy-btn.copied { background: var(--black); color: var(--white); border: 1px solid var(--white); }
+  .downloads {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .dl {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border: 1px solid var(--black);
+    border-radius: 3px;
+    text-decoration: none;
+    color: var(--black);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .dl:hover { background: var(--black); color: var(--white); }
+  .note {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.6;
+    border-left: 2px solid var(--line);
+    padding-left: 16px;
+    margin-top: 16px;
+  }
+  .toggle {
+    display: inline-flex;
+    border: 1px solid var(--black);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .toggle button {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border: none;
+    background: var(--white);
+    color: var(--black);
+    cursor: pointer;
+  }
+  .toggle button + button {
+    border-left: 1px solid var(--black);
+  }
+  .toggle button.active {
+    background: var(--black);
+    color: var(--white);
+  }
+  .badge-preview.dark-mode {
+    background: #111111;
+    border-color: #111111;
+  }
+  footer {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: #999;
+  }
+  footer a { color: #999; }
+  @media (max-width: 480px) {
+    h1 { font-size: 30px; }
+    .wrap { padding: 56px 20px 72px; }
+  }
+</style>
+</head>
+<script>
+(function () {
+  var lastHeight = 0;
+  var wrap = document.querySelector('.wrap');
+
+  function postHeight() {
+    var height = wrap ? wrap.getBoundingClientRect().height : document.body.scrollHeight;
+    height = Math.ceil(height);
+    if (Math.abs(height - lastHeight) < 2) return; // nothing meaningful changed, don't repost
+    lastHeight = height;
+    window.parent.postMessage({ type: "bbn-resize", height: height }, "*");
+  }
+
+  window.addEventListener("message", function (event) {
+    if (event.data && event.data.type === "bbn-request-height") {
+      postHeight();
+    }
+  });
+
+  window.addEventListener("load", postHeight);
+  // Deliberately no window "resize" listener here - the parent resizing the
+  // iframe fires this event too, and that's what caused the infinite growth.
+  if (window.ResizeObserver && wrap) {
+    new ResizeObserver(postHeight).observe(wrap);
+  }
+})();
+</script>
+<body>
+  <div class="wrap">
+    <h1>Show you're a member</h1>
+    <p class="lede">Add the Bitcoin Business Network badge to your website and email footer.</p>
+
+    <section>
+      <h2><span class="num">1</span>For your website</h2>
+      <p class="step-desc">Pick the background that suits your site, then copy the code below and paste it anywhere in your site's HTML, footer, sidebar, or homepage all work well.</p>
+
+      <div class="toggle">
+        <button id="toggle-light" class="active" onclick="setVersion('light')">Dark version</button>
+        <button id="toggle-dark" onclick="setVersion('dark')">Light version</button>
+      </div>
+
+      <div class="badge-preview" id="badge-preview">
+        <img id="badge-preview-img" src="assets/bbn-badge.png" alt="Member of Bitcoin Business Network badge">
+      </div>
+
+      <div class="code-box">
+        <button class="copy-btn" onclick="copyText('embed-code', this)">Copy code</button>
+        <code id="embed-code"></code>
+      </div>
+      <p class="note">Using a website builder like Squarespace, Wix, Framer or Beehiiv instead of raw HTML? Look for an "Embed" or "Custom HTML" block and paste the code there. The badge fills whatever box you place it in, so if your builder lets you drag to resize that box, dragging resizes the badge too.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">2</span>For your email signature</h2>
+      <p class="step-desc">Most email signature editors don't accept code. Download the image in your chosen version, insert it into your signature, then copy the link underneath and add it as the image's hyperlink.</p>
+      <div class="downloads">
+        <a class="dl" href="assets/bbn-badge-signature.png" download>Download dark version</a>
+        <a class="dl" href="assets/bbn-badge-light-signature.png" download>Download light version</a>
+      </div>
+      <div class="code-box" style="margin-top:16px;">
+        <button class="copy-btn" onclick="copyText('email-link', this)">Copy link</button>
+        <code id="email-link">joinbbn.com/?utm_source=member_badge&amp;utm_medium=email</code>
+      </div>
+    </section>
+  </div>
+
+<script>
+const BASE = 'https://alexglasse.github.io/BBN-Badge';
+const versions = {
+  light: {
+    preview: `${BASE}/assets/bbn-badge.png`,
+    signature: 'assets/bbn-badge-signature.png',
+    darkBg: false,
+    code: `<a href="https://joinbbn.com/?utm_source=member_badge&utm_medium=website" target="_blank" rel="noopener">
+  <img src="${BASE}/assets/bbn-badge.png" alt="Member of Bitcoin Business Network" style="width:100%;height:auto;display:block;">
+</a>`
+  },
+  dark: {
+    preview: `${BASE}/assets/bbn-badge-light.png`,
+    signature: 'assets/bbn-badge-light-signature.png',
+    darkBg: true,
+    code: `<a href="https://joinbbn.com/?utm_source=member_badge&utm_medium=website" target="_blank" rel="noopener">
+  <img src="${BASE}/assets/bbn-badge-light.png" alt="Member of Bitcoin Business Network" style="width:100%;height:auto;display:block;">
+</a>`
+  }
+};
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function setVersion(v) {
+  const data = versions[v];
+  document.getElementById('badge-preview-img').src = data.preview;
+  document.getElementById('badge-preview').classList.toggle('dark-mode', data.darkBg);
+  document.getElementById('embed-code').innerHTML = escapeHtml(data.code);
+  document.getElementById('toggle-light').classList.toggle('active', v === 'light');
+  document.getElementById('toggle-dark').classList.toggle('active', v === 'dark');
+}
+
+function showCopied(btn) {
+  const original = btn.dataset.label || btn.textContent;
+  btn.dataset.label = original;
+  btn.textContent = 'Copied';
+  btn.classList.add('copied');
+  setTimeout(() => {
+    btn.textContent = original;
+    btn.classList.remove('copied');
+  }, 1800);
+}
+
+function fallbackCopy(text, btn) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    showCopied(btn);
+  } catch (err) {
+    alert('Copy failed. Please select the text manually and copy it.');
+  }
+  document.body.removeChild(textarea);
+}
+
+function copyText(elementId, btn) {
+  const text = document.getElementById(elementId).innerText;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showCopied(btn)).catch(() => fallbackCopy(text, btn));
+  } else {
+    fallbackCopy(text, btn);
+  }
+}
+
+setVersion('light');
+</script>
+</body>
+</html>
