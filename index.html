@@ -22,7 +22,7 @@
   .wrap {
     max-width: 720px;
     margin: 0 auto;
-    padding: 80px 24px 100px;
+    padding: 40px 24px 100px;
   }
   .eyebrow {
     font-size: 13px;
@@ -216,24 +216,24 @@
 </script>
 <body>
   <div class="wrap">
-    <div class="eyebrow">Bitcoin Business Network</div>
     <h1>Show you're a member</h1>
-    <p class="lede">Add the BBN badge to your website or email signature. It links straight back to us, so it does a bit of promo for both of us every time someone clicks it.</p>
-
-    <div class="toggle">
-      <button id="toggle-light" class="active" onclick="setVersion('light')">Light background</button>
-      <button id="toggle-dark" onclick="setVersion('dark')">Dark background</button>
-    </div>
-
-    <div class="badge-preview" id="badge-preview">
-      <img id="badge-preview-img" src="assets/bbn-badge.png" alt="Member of Bitcoin Business Network badge">
-    </div>
+    <p class="lede">Add the Bitcoin Business Network badge to your website and email footer.</p>
 
     <section>
       <h2><span class="num">1</span>For your website</h2>
-      <p class="step-desc">Pick the version above that suits your site, then copy the code below and paste it anywhere in your site's HTML, footer, sidebar, or homepage all work well.</p>
+      <p class="step-desc">Pick the background that suits your site, then copy the code below and paste it anywhere in your site's HTML, footer, sidebar, or homepage all work well.</p>
+
+      <div class="toggle">
+        <button id="toggle-light" class="active" onclick="setVersion('light')">Light background</button>
+        <button id="toggle-dark" onclick="setVersion('dark')">Dark background</button>
+      </div>
+
+      <div class="badge-preview" id="badge-preview">
+        <img id="badge-preview-img" src="assets/bbn-badge.png" alt="Member of Bitcoin Business Network badge">
+      </div>
+
       <div class="code-box">
-        <button class="copy-btn" onclick="copyCode()">Copy code</button>
+        <button class="copy-btn" onclick="copyText('embed-code', this)">Copy code</button>
         <code id="embed-code"></code>
       </div>
       <p class="note">Using a website builder like Squarespace, Wix, Framer or Beehiiv instead of raw HTML? Look for an "Embed" or "Custom HTML" block and paste the code there. The badge fills whatever box you place it in, so if your builder lets you drag to resize that box, dragging resizes the badge too.</p>
@@ -241,16 +241,16 @@
 
     <section>
       <h2><span class="num">2</span>For your email signature</h2>
-      <p class="step-desc">Most email signature editors don't accept code. Download the image below, insert it into your signature, then add the link manually.</p>
+      <p class="step-desc">Most email signature editors don't accept code. Download the image in your chosen version, insert it into your signature, then copy the link underneath and add it as the image's hyperlink.</p>
       <div class="downloads">
-        <a class="dl" id="signature-download" href="assets/bbn-badge-signature.png" download>Download badge image</a>
+        <a class="dl" href="assets/bbn-badge-signature.png" download>Download light version</a>
+        <a class="dl" href="assets/bbn-badge-dark-signature.png" download>Download dark version</a>
       </div>
-      <p class="note">Link to add: joinbbn.com/?utm_source=member_badge&amp;utm_medium=email</p>
+      <div class="code-box" style="margin-top:16px;">
+        <button class="copy-btn" onclick="copyText('email-link', this)">Copy link</button>
+        <code id="email-link">joinbbn.com/?utm_source=member_badge&amp;utm_medium=email</code>
+      </div>
     </section>
-
-    <footer>
-      Questions? Get in touch with the BBN team.
-    </footer>
   </div>
 
 <script>
@@ -283,22 +283,22 @@ function setVersion(v) {
   document.getElementById('badge-preview-img').src = data.preview;
   document.getElementById('badge-preview').classList.toggle('dark-mode', data.darkBg);
   document.getElementById('embed-code').innerHTML = escapeHtml(data.code);
-  document.getElementById('signature-download').href = data.signature;
   document.getElementById('toggle-light').classList.toggle('active', v === 'light');
   document.getElementById('toggle-dark').classList.toggle('active', v === 'dark');
 }
 
-function showCopied() {
-  const btn = document.querySelector('.copy-btn');
+function showCopied(btn) {
+  const original = btn.dataset.label || btn.textContent;
+  btn.dataset.label = original;
   btn.textContent = 'Copied';
   btn.classList.add('copied');
   setTimeout(() => {
-    btn.textContent = 'Copy code';
+    btn.textContent = original;
     btn.classList.remove('copied');
   }, 1800);
 }
 
-function fallbackCopy(text) {
+function fallbackCopy(text, btn) {
   const textarea = document.createElement('textarea');
   textarea.value = text;
   textarea.style.position = 'fixed';
@@ -308,19 +308,19 @@ function fallbackCopy(text) {
   textarea.select();
   try {
     document.execCommand('copy');
-    showCopied();
+    showCopied(btn);
   } catch (err) {
-    alert('Copy failed. Please select the code manually and copy it.');
+    alert('Copy failed. Please select the text manually and copy it.');
   }
   document.body.removeChild(textarea);
 }
 
-function copyCode() {
-  const text = document.getElementById('embed-code').innerText;
+function copyText(elementId, btn) {
+  const text = document.getElementById(elementId).innerText;
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(showCopied).catch(() => fallbackCopy(text));
+    navigator.clipboard.writeText(text).then(() => showCopied(btn)).catch(() => fallbackCopy(text, btn));
   } else {
-    fallbackCopy(text);
+    fallbackCopy(text, btn);
   }
 }
 
