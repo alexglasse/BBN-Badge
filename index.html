@@ -187,6 +187,24 @@
   }
 </style>
 </head>
+<script>
+(function () {
+  function postHeight() {
+    var height = document.documentElement.scrollHeight;
+    window.parent.postMessage({ type: "bbn-resize", height: height }, "*");
+  }
+  window.addEventListener("message", function (event) {
+    if (event.data && event.data.type === "bbn-request-height") {
+      postHeight();
+    }
+  });
+  window.addEventListener("load", postHeight);
+  window.addEventListener("resize", postHeight);
+  if (window.ResizeObserver) {
+    new ResizeObserver(postHeight).observe(document.body);
+  }
+})();
+</script>
 <body>
   <div class="wrap">
     <div class="eyebrow">Bitcoin Business Network</div>
