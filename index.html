@@ -236,7 +236,7 @@
         <button class="copy-btn" onclick="copyCode()">Copy code</button>
         <code id="embed-code"></code>
       </div>
-      <p class="note">Using a website builder like Squarespace, Wix or Beehiiv instead of raw HTML? Look for an "Embed" or "Custom HTML" block and paste the code there.</p>
+      <p class="note">Using a website builder like Squarespace, Wix, Framer or Beehiiv instead of raw HTML? Look for an "Embed" or "Custom HTML" block and paste the code there. The badge fills whatever box you place it in, so if your builder lets you drag to resize that box, dragging resizes the badge too.</p>
     </section>
 
     <section>
@@ -261,7 +261,7 @@ const versions = {
     signature: 'assets/bbn-badge-signature.png',
     darkBg: false,
     code: `<a href="https://joinbbn.com/?utm_source=member_badge&utm_medium=website" target="_blank" rel="noopener">
-  <img src="${BASE}/assets/bbn-badge.png" alt="Member of Bitcoin Business Network" width="300">
+  <img src="${BASE}/assets/bbn-badge.png" alt="Member of Bitcoin Business Network" style="width:100%;height:auto;display:block;">
 </a>`
   },
   dark: {
@@ -269,7 +269,7 @@ const versions = {
     signature: 'assets/bbn-badge-dark-signature.png',
     darkBg: true,
     code: `<a href="https://joinbbn.com/?utm_source=member_badge&utm_medium=website" target="_blank" rel="noopener">
-  <img src="${BASE}/assets/bbn-badge-dark.png" alt="Member of Bitcoin Business Network" width="300">
+  <img src="${BASE}/assets/bbn-badge-dark.png" alt="Member of Bitcoin Business Network" style="width:100%;height:auto;display:block;">
 </a>`
   }
 };
@@ -288,17 +288,40 @@ function setVersion(v) {
   document.getElementById('toggle-dark').classList.toggle('active', v === 'dark');
 }
 
+function showCopied() {
+  const btn = document.querySelector('.copy-btn');
+  btn.textContent = 'Copied';
+  btn.classList.add('copied');
+  setTimeout(() => {
+    btn.textContent = 'Copy code';
+    btn.classList.remove('copied');
+  }, 1800);
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    showCopied();
+  } catch (err) {
+    alert('Copy failed. Please select the code manually and copy it.');
+  }
+  document.body.removeChild(textarea);
+}
+
 function copyCode() {
   const text = document.getElementById('embed-code').innerText;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.copy-btn');
-    btn.textContent = 'Copied';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = 'Copy code';
-      btn.classList.remove('copied');
-    }, 1800);
-  });
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showCopied).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
 }
 
 setVersion('light');
